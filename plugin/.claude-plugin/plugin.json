@@ -1,0 +1,9 @@
+{
+  "name": "stack-core",
+  "version": "1.0.0",
+  "description": "Universal guardrails for every Claude Code session: blocks destructive/irreversible commands and secret leaks, asks before risky ops, and formats edited files with the project's own formatter. Zero always-on context cost.",
+  "author": { "name": "ogmachine" },
+  "repository": "https://github.com/ogmachine/claude-stack",
+  "license": "MIT",
+  "keywords": ["guardrails", "safety", "hooks", "formatter"]
+}

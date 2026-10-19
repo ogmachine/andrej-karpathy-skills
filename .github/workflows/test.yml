@@ -1,0 +1,20 @@
+name: test
+on: [push, pull_request]
+jobs:
+  hooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Hook pipe-tests
+        run: python3 tests/test_hooks.py
+      - name: Generated files are in sync with their sources
+        run: |
+          python3 - <<'EOF'
+          from pathlib import Path
+          t = Path("scripts/setup-script.tmpl.sh").read_text()
+          md = Path("global/CLAUDE.md").read_text().rstrip("\n")
+          assert Path("setup-script.sh").read_text() == t.replace("@@GLOBAL_CLAUDE_MD@@", md), "run scripts/build.sh"
+          EOF
+          bash -n setup-script.sh template/.claude/hooks/session-start.sh
