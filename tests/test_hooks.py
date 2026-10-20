@@ -199,6 +199,62 @@ FILE_CASES = [
     ("Write", "README.md", "allow"),
 ]
 
+# Fake credentials are assembled at runtime so this file never contains a literal token.
+CONTENT_CASES = [
+    (
+        "Write",
+        {
+            "file_path": "src/config.ts",
+            "content": "const k = '" + "AKIA" + "IOSFODNN7EXAMPLE';",
+        },
+        "ask",
+    ),
+    (
+        "Edit",
+        {
+            "file_path": "a.py",
+            "old_string": "x",
+            "new_string": "T = '" + "ghp_" + "a" * 36 + "'",
+        },
+        "ask",
+    ),
+    (
+        "MultiEdit",
+        {
+            "file_path": "a.py",
+            "edits": [
+                {"old_string": "x", "new_string": "k='" + "sk-ant-" + "b" * 30 + "'"}
+            ],
+        },
+        "ask",
+    ),
+    (
+        "Write",
+        {
+            "file_path": "k.txt",
+            "content": "-----BEGIN " + "OPENSSH PRIVATE KEY-----\nabc",
+        },
+        "ask",
+    ),
+    (
+        "Write",
+        {
+            "file_path": "src/config.ts",
+            "content": "const k = process.env.GITHUB_TOKEN;",
+        },
+        "allow",
+    ),
+    (
+        "Edit",
+        {
+            "file_path": "a.md",
+            "old_string": "x",
+            "new_string": "Set AWS keys like AKIA... in your env",
+        },
+        "allow",
+    ),
+]
+
 
 def git_repo_on(branch: str) -> str:
     d = tempfile.mkdtemp(prefix="guardtest-")
@@ -222,6 +278,9 @@ def main() -> int:
     for tool, path, want in FILE_CASES:
         key = "notebook_path" if tool == "NotebookEdit" else "file_path"
         check(f"{tool} {path}", run_guard(tool, {key: path}), want)
+
+    for tool, ti, want in CONTENT_CASES:
+        check(f"{tool} content {ti.get('file_path')}", run_guard(tool, ti), want)
 
     main_repo, feat_repo = git_repo_on("main"), git_repo_on("feature-x")
     check("bare push on main", bash("git push", main_repo), "ask")
@@ -267,7 +326,14 @@ def main() -> int:
             )
             check("format ruff applied", p.read_text(), "x = 1\n")
 
-    total = len(DENY_BASH) + len(ASK_BASH) + len(ALLOW_BASH) + len(FILE_CASES) + 8
+    total = (
+        len(DENY_BASH)
+        + len(ASK_BASH)
+        + len(ALLOW_BASH)
+        + len(FILE_CASES)
+        + len(CONTENT_CASES)
+        + 8
+    )
     if failures:
         print(f"FAIL {len(failures)}/{total}")
         print("\n".join(failures))

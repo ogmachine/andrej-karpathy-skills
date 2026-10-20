@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """Apply the claude-stack project template to a repository, merging instead of clobbering.
 
-  python3 scripts/apply-template.py /path/to/repo [--refresh-denylist]
+  python3 scripts/apply-template.py /path/to/repo [--refresh-denylist] [--hookify]
 
 - .claude/settings.json: permission lists are unioned, hooks appended (deduped by command),
   enabledPlugins merged with the repo's own entries winning.
 - .claude/hooks/session-start.sh: copied if missing.
-- CLAUDE.md: created from the template only if the repo has neither CLAUDE.md nor AGENTS.md.
+- AGENTS.md + CLAUDE.md: AGENTS.md is the shared source (Claude, Codex, Cursor, Gemini) and
+  CLAUDE.md imports it with `@AGENTS.md`. Existing files are never overwritten; a repo with
+  only AGENTS.md gets the one-line CLAUDE.md.
 - --refresh-denylist: rebuild the "<plugin>@synced": false list from `claude plugin list`
   (use after enabling new plugins on claude.ai) — keeps KEEP below enabled.
+- --hookify: turn on the hookify plugin for this repo and add the starter warning rules
+  (debug leftovers, focused/skipped tests, Python breakpoints). Commit the rule files:
+  cloud sessions only see what is in the clone.
 """
 
 from __future__ import annotations
@@ -78,10 +83,20 @@ def main() -> int:
     tmpl = json.loads((TEMPLATE / ".claude/settings.json").read_text())
     if "--refresh-denylist" in sys.argv:
         tmpl["enabledPlugins"] = synced_denylist()
+    hookify = "--hookify" in sys.argv
+    if hookify:
+        for rule in sorted((TEMPLATE / "extras/hookify").glob("hookify.*.local.md")):
+            dest = repo / ".claude" / rule.name
+            if not dest.exists():
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(rule, dest)
+                print(f"added   .claude/{rule.name}")
 
     target = repo / ".claude/settings.json"
     target.parent.mkdir(parents=True, exist_ok=True)
     current = json.loads(target.read_text()) if target.exists() else {}
+    if hookify:  # an explicit repo-level true wins over the template's denylist on every later run
+        current.setdefault("enabledPlugins", {})["hookify@synced"] = True
     target.write_text(json.dumps(merge(current, tmpl), indent=2) + "\n")
     print(f"merged  {target.relative_to(repo)}")
 
@@ -91,11 +106,18 @@ def main() -> int:
         shutil.copy2(TEMPLATE / ".claude/hooks/session-start.sh", hook)
         print(f"added   {hook.relative_to(repo)}")
 
-    if not (repo / "CLAUDE.md").exists() and not (repo / "AGENTS.md").exists():
+    has_agents, has_claude = (
+        (repo / "AGENTS.md").exists(),
+        (repo / "CLAUDE.md").exists(),
+    )
+    if not has_agents and not has_claude:
+        shutil.copy2(TEMPLATE / "AGENTS.md", repo / "AGENTS.md")
+        print("added   AGENTS.md (fill in the <placeholders>)")
+    if not has_claude:
         shutil.copy2(TEMPLATE / "CLAUDE.md", repo / "CLAUDE.md")
-        print("added   CLAUDE.md (fill in the <placeholders>)")
+        print("added   CLAUDE.md (imports AGENTS.md)")
     else:
-        print("kept    existing CLAUDE.md/AGENTS.md")
+        print("kept    existing CLAUDE.md" + (" and AGENTS.md" if has_agents else ""))
 
     gi = repo / ".gitignore"
     lines = gi.read_text().splitlines() if gi.exists() else []

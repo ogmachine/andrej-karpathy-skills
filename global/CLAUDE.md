@@ -17,7 +17,7 @@
 - Run the relevant tests, typecheck, and lint, and quote the result. Done means they pass.
 - Bugs: reproduce first (failing test or command), fix, then show the same check passing.
 - Fix failing tests by fixing the code; edit a test only when the test is wrong, and say why.
-- UI changes: run the app and look at the change (Chromium/Playwright is available) before reporting.
+- UI changes: run the app and look at the change (Playwright/Chromium where available) before reporting.
 - State plainly anything you could not verify.
 
 ## Git
@@ -27,8 +27,6 @@
 
 ## Context
 
-- Delegate broad searches and log/large-file reading to subagents; keep the main context for decisions.
-- Read the relevant region of big files; use `rg`/`fd` rather than recursive listing.
 - For work spanning sessions, keep a short plan + progress note in the repo (e.g. `docs/plans/<task>.md`) and update it as you go.
 
 ## Guardrails

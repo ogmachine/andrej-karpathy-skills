@@ -117,6 +117,30 @@ _LOCKFILES = {
 }
 
 
+_CREDENTIAL_PATTERNS = [
+    ("AWS access key", re.compile(r"\b(AKIA|ASIA)[0-9A-Z]{16}\b")),
+    (
+        "GitHub token",
+        re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,}\b|\bgithub_pat_[A-Za-z0-9_]{60,}"),
+    ),
+    ("Anthropic API key", re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}")),
+    ("OpenAI API key", re.compile(r"\bsk-(proj-|svcacct-)?[A-Za-z0-9_-]{40,}")),
+    ("Slack token", re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,}")),
+    ("Google API key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),
+    ("Stripe live key", re.compile(r"\b[rs]k_live_[0-9A-Za-z]{20,}")),
+    (
+        "private key",
+        re.compile(r"-----BEGIN (RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----"),
+    ),
+]
+
+
+def _written_text(ti: dict) -> str:
+    parts = [ti.get("content"), ti.get("new_string"), ti.get("new_source")]
+    parts += [e.get("new_string") for e in ti.get("edits") or [] if isinstance(e, dict)]
+    return "\n".join(p for p in parts if isinstance(p, str))
+
+
 def check_file_tool(tool: str, ti: dict, cwd: str):
     path = ti.get("file_path") or ti.get("notebook_path") or ti.get("path") or ""
     if not path:
@@ -137,6 +161,13 @@ def check_file_tool(tool: str, ti: dict, cwd: str):
         )
     if not writing:
         return None
+    text = _written_text(ti)
+    for label, rx in _CREDENTIAL_PATTERNS:
+        if rx.search(text):
+            return (
+                ASK,
+                f"The new content contains what looks like a real {label}. Read it from an environment variable or secret store and reference it by name; confirm with the user only if this is a deliberate fixture.",
+            )
     if "/.git/" in norm or norm.startswith(".git/"):
         return DENY, "Don't edit .git internals directly; use git commands."
     if name in _LOCKFILES:
