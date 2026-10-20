@@ -1,12 +1,19 @@
 {
   "name": "claude-stack",
-  "owner": { "name": "ogmachine" },
+  "owner": {
+    "name": "ogmachine"
+  },
   "description": "ogmachine's lean Claude Code stack: universal guardrail hooks for every session.",
   "plugins": [
     {
       "name": "stack-core",
       "source": "./plugin",
       "description": "Universal guardrails (destructive/secret-leak guard) and project-formatter hooks. Zero always-on context cost."
+    },
+    {
+      "name": "stack-kit",
+      "source": "./kit",
+      "description": "Branded templates, naming/ticket/folder protocols and the skills that apply them."
     }
   ]
 }
