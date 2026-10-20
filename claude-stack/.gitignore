@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.ruff_cache/
+.governor/
+.claude/settings.local.json
+# Personal evidence and rules stay out of the public repo (kept in /root/tasks/cc-cloud-setup)
+kit/EVIDENCE.md
+kit/rules-file/
+.claude/agent-memory/
