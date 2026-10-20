@@ -1,0 +1,100 @@
+repo	root_claude_lines	claude_is	nested_claude	agents_md	settings	hook_events	allow	deny	ask	agents	commands	skills	rules	mcp_servers	monorepo
+AppFlowy-IO/AppFlowy		-	0				0	0	0	0	0	0	0		
+Budibase/budibase	153	own	0	y			0	0	0	0	0	0	0		nx.json,lerna.json
+Effect-TS/effect		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml
+PostHog/posthog	337	symlink->AGENTS.md	62	y	y	SessionStart	0	0	0	11	1	0	15	phrocs,posthog-local,trunk	pnpm-workspace.yaml,turbo.json
+PrefectHQ/prefect		-	0	y	y	SessionStart	0	0	0	0	1	4	0		
+RocketChat/Rocket.Chat	74	own	0				0	0	0	0	0	0	0		turbo.json
+RooCodeInc/Roo-Code		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+TanStack/router		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,nx.json
+ToolJet/ToolJet	176	symlink->AGENTS.md	2	y			0	0	0	3	0	0	0		
+airbytehq/airbyte		-	66				0	0	0	0	0	1	0		
+angular/angular		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,Cargo.toml
+anthropics/claude-code	41	own	0				0	0	0	0	3	0	0		
+apache/airflow	252	symlink->AGENTS.md	1	y			0	0	0	0	0	0	0		
+apache/datafusion	73	symlink->AGENTS.md	0	y			0	0	0	0	0	0	0		Cargo.toml
+apache/superset	316	symlink->AGENTS.md	1	y	y	PreToolUse	0	0	0	0	1	0	0		
+appsmithorg/appsmith		-	0				0	0	0	0	0	0	0		
+astral-sh/ruff	2	imports-AGENTS	0	y	y	SessionStart	0	0	0	0	0	0	0		Cargo.toml
+astral-sh/uv		-	0	y			0	0	0	0	0	0	0		Cargo.toml
+backstage/backstage		-	1	y			0	0	0	0	0	1	0		
+bevyengine/bevy		-	0				0	0	0	0	0	0	0		Cargo.toml
+biomejs/biome		-	0	y			0	0	0	0	0	1	0		pnpm-workspace.yaml,Cargo.toml
+calcom/cal.com	245	symlink->AGENTS.md	2	y	y		0	0	0	0	0	0	0		turbo.json
+cline/cline		-	0	y	y	SessionStart	0	0	0	0	2	0	0		
+continuedev/continue		-	0				0	0	0	0	0	1	0		
+dagster-io/dagster	121	own	5		y		62	88	0	4	8	1	0		
+denoland/deno	434	own	0				0	0	0	0	0	6	0		Cargo.toml
+directus/directus		-	0	y	y	PostToolUse	0	0	0	0	0	0	0		pnpm-workspace.yaml
+documenso/documenso		-	0	y			0	0	0	0	0	0	0		turbo.json
+drizzle-team/drizzle-orm		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+dubinc/dub		-	1				0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+elastic/kibana		-	1	y	y	PreToolUse	0	0	0	1	0	0	0		pnpm-workspace.yaml
+excalidraw/excalidraw	35	own	0	y			0	0	0	0	0	0	0		
+facebook/docusaurus		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,lerna.json
+facebook/lexical	2	imports-AGENTS	0	y	y		0	0	0	0	0	0	0		pnpm-workspace.yaml
+facebook/react	14	own	1		y	SessionStart	18	6	0	0	0	7	0		
+formbricks/formbricks	2	imports-AGENTS	1	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+getsentry/sentry	2	imports-AGENTS	3	y	y		96	0	0	0	3	0	0	sentry,devinfra-mcp	pnpm-workspace.yaml
+gitbutlerapp/gitbutler		-	5	y			0	0	0	0	0	0	0	gitbutler-storybook-published	pnpm-workspace.yaml,turbo.json,Cargo.toml
+google-gemini/gemini-cli		-	0				0	0	0	0	0	0	0		
+grafana/grafana	2	imports-AGENTS	0	y			0	0	0	0	0	3	0		nx.json,go.work
+hoppscotch/hoppscotch		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml
+immich-app/immich		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml
+langchain-ai/langchain		-	0	y			0	0	0	0	0	0	0	docs-langchain,reference-langchain	
+langflow-ai/langflow	7	imports-AGENTS	0	y			0	0	0	0	0	0	0		
+langgenius/dify		-	0	y	y	PreToolUse	0	0	0	0	0	0	0		pnpm-workspace.yaml
+lobehub/lobe-chat		-	2	y			0	0	0	0	0	0	0		pnpm-workspace.yaml
+mastra-ai/mastra	2	imports-AGENTS	4	y	y		0	0	0	0	14	19	0		pnpm-workspace.yaml,turbo.json
+mattermost/mattermost		-	0	y			0	0	0	0	0	0	0		
+medusajs/medusa	476	own	3				0	0	0	5	3	8	0		turbo.json
+microsoft/autogen		-	0				0	0	0	0	0	0	0		
+microsoft/fluentui	120	symlink->AGENTS.md	0	y			0	0	0	0	0	11	0		nx.json
+microsoft/playwright		-	0	y			0	0	0	0	0	5	0		
+microsoft/semantic-kernel		-	0				0	0	0	0	0	0	0		
+microsoft/vscode		-	0	y			0	0	0	0	0	0	0	vscode-automation-mcp,component-explorer	
+modelcontextprotocol/servers		-	0	y			0	0	0	0	0	11	0	mcp-docs	
+mui/material-ui	6	own	0	y			0	0	0	0	0	1	0		pnpm-workspace.yaml,nx.json,lerna.json
+n8n-io/n8n	2	imports-AGENTS	9	y	y	PostToolUse	12	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+nocodb/nocodb		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml,lerna.json
+novuhq/novu		-	1	y			0	0	0	0	0	1	0		pnpm-workspace.yaml,nx.json
+nrwl/nx	245	own	2	y	y		23	0	0	9	3	17	0		pnpm-workspace.yaml,nx.json,Cargo.toml
+nushell/nushell	24	symlink->AGENTS.md	0	y			0	0	0	0	0	0	0		Cargo.toml
+nuxt/nuxt		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml
+open-webui/open-webui		-	0				0	0	0	0	0	0	0		
+openai/codex		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml
+openai/openai-agents-python	215	symlink->AGENTS.md	0	y			0	0	0	0	0	0	0		
+oven-sh/bun	242	own	11	y	y	PostToolUse,PreToolUse	0	0	0	0	6	8	0		Cargo.toml
+oxc-project/oxc		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,Cargo.toml
+payloadcms/payload		-	0	y	y	PostToolUse	42	0	0	0	3	0	0	playwright,payload	pnpm-workspace.yaml,turbo.json
+pola-rs/polars		-	0				0	0	0	0	0	0	0		Cargo.toml
+prisma/prisma	131	symlink->AGENTS.md	0	y	y	PostToolUse,PreToolUse,Stop,WorktreeCreate	21	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+pydantic/pydantic-ai	167	symlink->AGENTS.md	14	y	y		21	0	0	0	0	3	0		
+refinedev/refine		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml,nx.json,lerna.json
+remix-run/react-router	27	own	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml
+run-llama/llama_index		-	0				0	0	0	0	0	0	0		
+shadcn-ui/ui		-	2				0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+storybookjs/storybook	2	imports-AGENTS	0	y			0	0	0	0	0	14	0		nx.json
+strapi/strapi	2	imports-AGENTS	1	y			0	0	0	0	0	0	0		nx.json,lerna.json
+supabase/supabase	2	imports-AGENTS	3	y	y	PostToolUse,SessionStart	0	6	0	0	0	0	0	supabase	pnpm-workspace.yaml
+sveltejs/svelte		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml
+swc-project/swc	551	own	0	y	y		2	0	0	0	0	0	0	CodSpeed	pnpm-workspace.yaml,Cargo.toml
+tailwindlabs/tailwindcss		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json,Cargo.toml
+tauri-apps/tauri		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml,Cargo.toml
+tldraw/tldraw	2	imports-AGENTS	0	y	y	PreToolUse,Stop	7	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json,lerna.json
+toeverything/AFFiNE		-	0				0	0	0	0	0	0	0		Cargo.toml
+triggerdotdev/trigger.dev		-	0	y			0	0	0	3	0	4	6		pnpm-workspace.yaml,turbo.json
+trpc/trpc		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json,lerna.json
+twentyhq/twenty	61	own	7	y	y	SessionStart	0	0	0	0	0	7	0	postgres,playwright,context7	nx.json
+unionlabs/union		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml,Cargo.toml
+vercel/ai		-	1	y	y	PostToolUse	0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+vercel/next.js		-	2	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json,Cargo.toml
+vercel/turborepo		-	2	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json,Cargo.toml
+vercel/vercel		-	3	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json,Cargo.toml
+vitejs/vite		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml
+vitest-dev/vitest		-	0	y			0	0	0	1	0	1	0		pnpm-workspace.yaml
+vuejs/core		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml
+web-infra-dev/rspack		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,Cargo.toml
+withastro/astro		-	0	y			0	0	0	0	0	0	0		pnpm-workspace.yaml,turbo.json
+withastro/starlight		-	0				0	0	0	0	0	0	0		pnpm-workspace.yaml
+zed-industries/zed		symlink->.rules	0				0	0	0	0	0	0	0		Cargo.toml

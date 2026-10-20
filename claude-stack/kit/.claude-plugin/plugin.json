@@ -1,0 +1,8 @@
+{
+  "name": "stack-kit",
+  "version": "0.1.0",
+  "description": "Branded templates (pages, docs, sheets/databases, canvases, artifacts), naming/ticket/folder protocols and the skills that apply them, so every agent produces consistent, predictable output.",
+  "author": { "name": "ogmachine" },
+  "license": "MIT",
+  "keywords": ["templates", "brand", "naming", "taxonomy", "consistency"]
+}
