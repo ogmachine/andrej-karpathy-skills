@@ -36,7 +36,8 @@ After enabling new plugins on claude.ai, run `apply-template.py <repo> --refresh
 ## Local use (terminal / desktop)
 
 ```bash
-claude plugin marketplace add ogmachine/claude-stack
+git clone https://github.com/ogmachine/andrej-karpathy-skills && cd andrej-karpathy-skills/claude-stack
+claude plugin marketplace add .
 claude plugin install stack-core@claude-stack
 cp global/CLAUDE.md ~/.claude/CLAUDE.md
 ```

@@ -55,13 +55,18 @@ export DEBIAN_FRONTEND=noninteractive
 { npm install -g --silent @ast-grep/cli >/dev/null 2>&1; } || log "ast-grep skipped" &
 wait
 
-# 3) This repo, so any session can run: python3 /opt/claude-stack/scripts/apply-template.py .
-#    Best-effort: works when the repo is public or the environment can read it.
-if git clone -q --depth 1 https://github.com/ogmachine/claude-stack /opt/claude-stack.new 2>/dev/null; then
-  rm -rf /opt/claude-stack && mv /opt/claude-stack.new /opt/claude-stack
-else
-  log "claude-stack clone skipped (private repo or no access)"
-fi
+# 3) This stack, so any session can run: python3 /opt/claude-stack/scripts/apply-template.py .
+#    It lives in the claude-stack/ folder of ogmachine/andrej-karpathy-skills (public):
+#    on main once the PR is merged, on the claude/claude-stack branch until then.
+for ref in main claude/claude-stack; do
+  rm -rf /tmp/cs-src
+  if git clone -q --depth 1 --branch "$ref" https://github.com/ogmachine/andrej-karpathy-skills /tmp/cs-src 2>/dev/null \
+     && [ -d /tmp/cs-src/claude-stack ]; then
+    rm -rf /opt/claude-stack && mv /tmp/cs-src/claude-stack /opt/claude-stack && break
+  fi
+done
+rm -rf /tmp/cs-src
+[ -d /opt/claude-stack ] || log "claude-stack clone skipped (no access)"
 
 # 4) Git defaults that prevent common agent footguns.
 git config --global init.defaultBranch main
