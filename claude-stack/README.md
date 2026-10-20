@@ -3,7 +3,7 @@
 A from-scratch, lean Claude Code setup for **cloud sessions** (claude.ai/code), also usable locally.
 
 Before: 217 synced plugins, ~201k tokens of always-on context, 99 hooks, 228 MCP servers per session.
-After, in a repo using this template: 6 plugins (~2.1k tokens), 3 hooks (a ~40 ms safety guard, a formatter, and a startup dependency install), a 36-line global CLAUDE.md, and permission prompts only for risky commands.
+After, in a repo using this template: 6 plugins (~2.1k tokens), 3 hooks (a ~40 ms safety guard, a formatter, and a startup dependency install), a 34-line global CLAUDE.md, and permission prompts only for risky commands.
 
 ## Set it up (about 10 minutes, once)
 
@@ -31,7 +31,7 @@ After enabling new plugins on claude.ai, run `apply-template.py <repo> --refresh
 | `scripts/apply-template.py`                        | Merge the template into a repo without clobbering                                                                                                  |
 | `curation/`                                        | Plugin keep/off table with measured costs, star/fork curation, monorepo config patterns                                                            |
 | `docs/ARCHITECTURE.md`                             | What loads when, what reaches cloud, why each piece sits where it does                                                                             |
-| `tests/test_hooks.py`                              | 158 pipe-tests for the hooks: `python3 tests/test_hooks.py`                                                                                        |
+| `tests/test_hooks.py`                              | 191 pipe-tests for the hooks: `python3 tests/test_hooks.py`                                                                                        |
 
 ## Local use (terminal / desktop)
 

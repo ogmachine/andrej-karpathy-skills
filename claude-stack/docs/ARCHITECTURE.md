@@ -19,16 +19,16 @@ Deterministic rules go in **hooks** (they can't be forgotten and cost no context
 
 ## What reaches a cloud session (Anthropic-hosted)
 
-| Source                                                   | Read in cloud?                                   | Used here for                                             |
-| -------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------- | ---------------------- | --- | --------------------- |
-| Plugins enabled on claude.ai (incl. your uploads)        | Yes, every session                               | `stack-core` hooks + the 6 kept plugins                   |
-| Repo `.claude/settings.json` (single-repo sessions)      | Yes: permissions, hooks, `enabledPlugins: false` | allowlist, SessionStart deps, synced-plugin denylist      |
-| Repo `CLAUDE.md`, `.claude/rules                         | skills                                           | agents                                                    | commands`, `.mcp.json` | Yes | per-project knowledge |
-| `~/.claude/CLAUDE.md` written by the setup script        | Yes                                              | global working agreement                                  |
-| Setup script installs (CLIs, git config)                 | Yes (cached ~7 days)                             | fd, shellcheck, shfmt, ast-grep, just, tree, sqlite3      |
-| `~/.claude/settings.json`, `.claude/settings.local.json` | **No**                                           | — (so `syncClaudeAiPlugins:false` can't be used in cloud) |
-| `~/.claude/skills                                        | agents`, user-scope MCP                          | **No**                                                    | —                      |
-| Plugins/marketplaces a repo _enables_                    | **No** (only `false` is honored)                 | —                                                         |
+| Source                                                                    | Read in cloud?                                   | Used here for                                             |
+| ------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------- |
+| Plugins enabled on claude.ai (incl. your uploads)                         | Yes, every session                               | `stack-core` hooks + the 6 kept plugins                   |
+| Repo `.claude/settings.json` (single-repo sessions)                       | Yes: permissions, hooks, `enabledPlugins: false` | allowlist, SessionStart deps, synced-plugin denylist      |
+| Repo `CLAUDE.md`, `.claude/` rules, skills, agents, commands, `.mcp.json` | Yes                                              | per-project knowledge                                     |
+| `~/.claude/CLAUDE.md` written by the setup script                         | Yes                                              | global working agreement                                  |
+| Setup script installs (CLIs, git config)                                  | Yes (cached ~7 days)                             | fd, shellcheck, shfmt, ast-grep, just, tree, sqlite3      |
+| `~/.claude/settings.json`, `.claude/settings.local.json`                  | **No**                                           | — (so `syncClaudeAiPlugins:false` can't be used in cloud) |
+| `~/.claude/skills`, `~/.claude/agents`, user-scope MCP                    | **No**                                           | —                                                         |
+| Plugins/marketplaces a repo _enables_                                     | **No** (only `false` is honored)                 | —                                                         |
 
 Sources: code.claude.com/docs/en/cloud-environments ("What carries over"), /settings ("Settings in cloud sessions"), /plugins/loading ("Control which synced plugins load").
 
@@ -37,7 +37,7 @@ Sources: code.claude.com/docs/en/cloud-environments ("What carries over"), /sett
 1. **`stack-core` plugin** (`plugin/`, upload `dist/stack-core.zip` to claude.ai). Two hooks, 0 always-on tokens:
    - `guard.py` (PreToolUse: Bash, Read, Edit, Write, MultiEdit, NotebookEdit, ~40 ms): **deny** `rm -rf` of `/`/`~`/system dirs, deleting `find` at those roots, disk writes, plain force-push, `--no-verify`, printing/uploading secrets (`.env`, keys, `~/.ssh`), env-dump-to-network, `.git/` edits. **Ask** for push to protected branches, `reset --hard`, `clean -f`, bulk checkout/restore, `branch -D`, curl-pipe-to-shell, publish/deploy/infra/cluster commands, destructive SQL in DB clients, lockfile/`.env` writes, edits to Claude's own settings/hooks, and written content containing real-looking credentials (AWS, GitHub, Anthropic/OpenAI, Slack, Google, Stripe keys, private-key blocks). Shell-aware (parses `bash -c`, `eval`, `sudo`, env prefixes; ignores heredoc/echo data). Fails open; `CLAUDE_GUARD=off` disables.
    - `format.py` (PostToolUse: Edit, Write, MultiEdit): runs the **project's own** formatter (biome, prettier, ruff, black, gofmt, rustfmt, terraform fmt, shfmt) only when the repo has its config and a local binary; never downloads, never prints.
-2. **Setup script** (`setup-script.sh`, generated): writes `~/.claude/CLAUDE.md` (36 lines, ~500 tokens), installs missing CLIs in parallel, sets safe git defaults. Runs in ~8 s; exits 0 even on partial failure.
+2. **Setup script** (`setup-script.sh`, generated): writes `~/.claude/CLAUDE.md` (34 lines, ~500 tokens), installs missing CLIs in parallel, sets safe git defaults. Runs in ~10 s; exits 0 even on partial failure.
 3. **Repo template** (`template/`, apply with `scripts/apply-template.py <repo>`):
    - `.claude/settings.json`: 102 allow rules for the normal dev loop (the guard still catches the dangerous variants inside them), secret-path read denies, SessionStart dependency install, and `"<plugin>@synced": false` for every synced plugin outside the keep set → **6 plugins load instead of 217** (verified with `claude plugin list`). Cowork is unaffected.
    - `.claude/hooks/session-start.sh`: lockfile-driven install (`pnpm/bun/yarn/npm ci`, `uv sync`, `poetry`, `pip`, `go mod download`, `cargo fetch`) only when `CLAUDE_CODE_REMOTE=true`.
@@ -64,6 +64,7 @@ Everything else is one line away: remove its `false` entry in that repo's `.clau
 
 ## Known limits
 
-- The guard is a guardrail against mistakes, not a sandbox: obfuscated commands (`x=rm; $x -rf /`) and `xargs rm -rf < list` pass.
+- The guard is a guardrail against mistakes, not a sandbox: obfuscated commands (`x=rm; $x -rf /`), `xargs rm -rf < list`, command substitution inside double quotes, and code run through an interpreter (`python3 -c ...`) pass. Multi-line commands are checked line by line; heredoc bodies are treated as data.
+- The template's allowlist (`Bash(rm *)`, `Bash(kubectl *)`, `Bash(terraform *)`, ...) assumes `stack-core` is enabled. Without it those commands can run with no prompt, so upload the plugin before applying the template.
 - `enabledPlugins` denylist is by name: a plugin newly enabled on claude.ai loads until you rerun `scripts/apply-template.py <repo> --refresh-denylist`.
 - Multi-repo cloud sessions read only `enabledPlugins`/`extraKnownMarketplaces` from repo settings — no permissions or hooks.

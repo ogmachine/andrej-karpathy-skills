@@ -191,18 +191,41 @@ def check_file_tool(tool: str, ti: dict, cwd: str):
 # ---------------------------------------------------------------- bash
 
 
+_SEPARATORS = ";&|()<>\n"
+_HEREDOC = re.compile(r"(?<!<)<<(?!<)-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
+
+
+def _strip_heredocs(cmd: str) -> str:
+    """Drop heredoc bodies: they are data, not commands."""
+    lines, out, i = cmd.split("\n"), [], 0
+    while i < len(lines):
+        out.append(lines[i])
+        delims = [m.group(2) for m in _HEREDOC.finditer(lines[i])]
+        i += 1
+        for d in delims:
+            while i < len(lines) and lines[i].strip() != d:
+                i += 1
+            i += 1  # the delimiter line
+    return "\n".join(out)
+
+
 def _segments(cmd: str):
-    """Split a shell command into simple-command token lists (best effort)."""
+    """Split a shell command into simple-command token lists (best effort).
+
+    Newlines separate commands like `;` does, so a multi-line command is checked line by line.
+    """
+    cmd = _strip_heredocs(cmd.replace("\\\n", " "))
     try:
-        lex = shlex.shlex(cmd, posix=True, punctuation_chars=";&|()<>")
+        lex = shlex.shlex(cmd, posix=True, punctuation_chars=_SEPARATORS)
+        lex.whitespace = " \t\r"
         lex.whitespace_split = True
         lex.commenters = ""
         tokens = list(lex)
     except ValueError:  # unbalanced quotes etc.
-        tokens = cmd.split()
+        tokens = re.findall(r"[;&|()<>\n]+|[^\s;&|()<>]+", cmd)
     seg: list[str] = []
     for t in tokens:
-        if t and set(t) <= set(";&|()<>"):
+        if t and set(t) <= set(_SEPARATORS):
             if seg:
                 yield seg
             seg = []
@@ -226,20 +249,30 @@ _WRAPPERS = {
     "stdbuf",
     "doas",
 }
+# Wrapper flags that take a separate value, e.g. `sudo -u root`, `timeout -k 5`.
+_WRAPPER_VALUE_FLAGS = {
+    "sudo": {"-u", "-g", "-h", "-p", "-C", "-D", "-r", "-t", "-U", "--user", "--group"},
+    "doas": {"-u", "-C"},
+    "env": {"-u", "-C", "--unset", "--chdir"},
+    "timeout": {"-k", "-s", "--kill-after", "--signal"},
+    "nice": {"-n", "--adjustment"},
+    "xargs": {"-I", "-L", "-n", "-P", "-d", "-E", "-s", "-a"},
+}
+# Shell keywords that can sit in front of a command on the same segment.
+_KEYWORDS = {"if", "then", "else", "elif", "while", "until", "do", "!", "{"}
 
 
 def _strip_prefix(seg: list[str]) -> list[str]:
     i = 0
     while i < len(seg):
         t = seg[i]
-        if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t):  # VAR=value prefix
+        if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t) or t in _KEYWORDS:
             i += 1
         elif t in _WRAPPERS:
+            valued = _WRAPPER_VALUE_FLAGS.get(t, set())
             i += 1
-            while i < len(seg) and seg[i].startswith(
-                "-"
-            ):  # wrapper flags, e.g. timeout -k 5
-                i += 1
+            while i < len(seg) and seg[i].startswith("-"):
+                i += 2 if seg[i] in valued else 1
             if t == "timeout" and i < len(seg) and re.match(r"^\d", seg[i]):
                 i += 1
         else:
@@ -439,7 +472,8 @@ def check_git(seg: list[str], cwd: str):
 
 
 _RM_HARD = re.compile(
-    r"^(/|/\*|~|~/|~/\*|\$HOME|\$\{HOME\}|\$HOME/\*|/(etc|usr|bin|sbin|boot|lib|lib64|var|sys|proc|dev|opt|srv)(/.*)?)$"
+    r"^(/|/\*|~|~/|~/\*|\$HOME|\$\{HOME\}|\$HOME/\*|/root(/\*)?|/home(/[^/]+)?(/\*)?"
+    r"|/(etc|usr|bin|sbin|boot|lib|lib64|var|sys|proc|dev|opt|srv)(/.*)?)$"
 )
 _RM_SOFT = re.compile(r"^(\.|\./|\.\.|\.\./|\*|\.\*|\./\*|\.git|\./\.git)$")
 
@@ -462,7 +496,7 @@ _ASK_PROGRAMS = [
     ),
     (
         re.compile(
-            r"^gh (repo (delete|archive|rename|edit)|release (create|delete|edit)|pr merge|secret|variable (set|delete)|api .*(-X|--method) ?(DELETE|PUT|PATCH))"
+            r"^gh (repo (delete|archive|rename|edit)|release (create|delete|edit)|pr merge|secret|variable (set|delete)|api .*(-X|--method)[ =]?(DELETE|PUT|PATCH))"
         ),
         "Changes shared GitHub state.",
     ),
@@ -521,10 +555,42 @@ _DB_CLIENTS = {
 }
 
 
+# Global options that can come before the verb (`kubectl -n prod delete ...`), with a value.
+_GLOBAL_VALUE_OPTS = {
+    "kubectl": {
+        "-n",
+        "--namespace",
+        "--context",
+        "--kubeconfig",
+        "--cluster",
+        "--user",
+        "-s",
+        "--server",
+        "--as",
+    },
+    "helm": {"-n", "--namespace", "--kube-context", "--kubeconfig"},
+    "docker": {"-H", "--host", "-c", "--context", "--config", "-l", "--log-level"},
+    "pulumi": {"-C", "--cwd", "-s", "--stack"},
+    "terraform": set(),  # -chdir=DIR is one token
+    "tofu": set(),
+}
+_GLOBAL_VALUE_OPTS["oc"] = _GLOBAL_VALUE_OPTS["kubectl"]
+
+
+def _drop_global_opts(prog: str, args: list[str]) -> list[str]:
+    valued = _GLOBAL_VALUE_OPTS.get(prog)
+    if valued is None:
+        return args
+    i = 0
+    while i < len(args) and args[i].startswith("-"):
+        i += 2 if args[i] in valued else 1
+    return args[i:]
+
+
 def check_simple(seg: list[str], cwd: str):
     prog = PurePath(seg[0]).name
     args = seg[1:]
-    line = " ".join([prog] + args)
+    line = " ".join([prog] + _drop_global_opts(prog, args))
 
     if prog == "git":
         return check_git(seg, cwd)

@@ -84,6 +84,21 @@ DENY_BASH = [
     "chmod -R 777 /",
     "find / -delete",
     "find ~ -name x -exec rm -rf {} +",
+    # multi-line commands: every line is checked, not only the first
+    "cd /tmp\nrm -rf /",
+    "git status\ngit push --force origin main",
+    "echo ok\ncat .env",
+    "rm -rf \\\n  /",
+    "if true; then rm -rf /; fi",
+    "for d in a b; do rm -rf ~; done",
+    # home directories spelled out (cloud $HOME is /root)
+    "rm -rf /root",
+    "rm -rf /home",
+    "rm -rf /home/user/",
+    # wrapper flags that take a value
+    "sudo -u root rm -rf /",
+    "timeout -k 5 10 rm -rf /",
+    "nice -n 10 rm -rf ~",
 ]
 ASK_BASH = [
     "git reset --hard HEAD~1",
@@ -126,6 +141,15 @@ ASK_BASH = [
     "rm -rf *",
     "rm -rf .git",
     "chmod -R 777 ./public",
+    # global options before the verb
+    "kubectl -n prod delete pod web-1",
+    "kubectl --context prod apply -f x.yaml",
+    "oc --namespace=prod delete pod web-1",
+    "helm -n prod uninstall web",
+    "terraform -chdir=infra apply -auto-approve",
+    "docker --context prod push me/img",
+    "gh api --method=DELETE repos/o/r",
+    "npm test\nnpm publish",
 ]
 ALLOW_BASH = [
     "rm -rf node_modules",
@@ -172,6 +196,20 @@ ALLOW_BASH = [
     "uv sync",
     "cargo test",
     "",
+    # nearby allowed forms for the multi-line / heredoc / home / global-option rules
+    "cd /tmp\nls -la\ngit status",
+    "cat > notes.txt <<'EOF'\nstep one; rm -rf /\nEOF",
+    "cat <<EOF | grep x\ngit push --force origin main\nEOF\necho done",
+    "git commit -m \"$(cat <<'EOF'\nDrop rm -rf / handling\n\nDetails.\nEOF\n)\"",
+    'python3 -c "\nimport os\nprint(os.getcwd())\n"',
+    'cat <<< "rm -rf /"',
+    "rm -rf /root/.cache/pip",
+    "rm -rf /home/user/repo/build",
+    "sudo -u app ls /srv",
+    "kubectl -n prod get pods",
+    "helm -n prod list",
+    "terraform -chdir=infra plan",
+    "gh api --method=GET repos/o/r",
 ]
 
 FILE_CASES = [
